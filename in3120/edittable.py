@@ -100,7 +100,40 @@ class EditTable:
         all the row indices i, i.e., the minimal edit distance between candidate[0:j] and some
         prefix of the query string.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        for i in range(1, len(self._table)):
+            field: int
+            left = self._table[i][j-1]
+            top = self._table[i-1][j]
+            top_left = self._table[i-1][j-1]
+
+            # check for replacement
+            q = self._query[i-1]
+            c = self._candidate[j-1]
+            if q == c:
+                field = top_left
+            # if not replaced update by min() of the fields
+            else:
+                field = min(left, top, top_left) + 1
+
+            # check for transposition
+            prev_q = self._query[i-2]
+            prev_c = self._candidate[j-2]
+            if q == prev_c and c == prev_q:
+                field = top_left
+
+            self._table[i][j] = field
+
+        smallest = self._INFINITY
+        for i in range(1, len(self._table)):
+            for j in range(1, len(self._table[i])):
+                field = self._table[i][j]
+                if field < smallest:
+                    smallest = field
+
+        return smallest
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def update2(self, j: int, symbol: str) -> int:
         """
@@ -127,11 +160,17 @@ class EditTable:
         Only a prefix of the candidate string can be considered, if specified. That is,
         the caller is allowed to supply a column index and that way vary the W-E axis.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        return self._table[len(self._query)][j]
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def prefix(self, j: int) -> str:
         """
         Returns the prefix of the candidate string, up to the given index. I.e.,
         returns candidate[0:j].
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        return "".join(self._candidate[0:j])
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")

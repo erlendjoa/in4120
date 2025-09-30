@@ -68,13 +68,28 @@ class SimpleSearchEngine:
         Returns the subset of cursors (or, rather, their indices) that are still "alive",
         i.e., the subset of cursors having posting lists that have not yet been exhausted.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        subset = []
+        for (i, cursor) in enumerate(cursors):
+            if cursor.current is not None:
+                subset.append(i)
+        return subset
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def _advance(self, cursors: List[Cursor], subset: List[int]) -> None:
         """"
         Advances the given subset of cursors.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        for i in subset:
+            cursor = cursors[i]
+            try:
+                cursor.current = next(cursor.postings)
+            except StopIteration:
+                cursor.current = None
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def _frontier(self, cursors: List[Cursor], subset: List[int]) -> Tuple[int, List[int]]:
         """
@@ -85,7 +100,27 @@ class SimpleSearchEngine:
         the smallest document identifier. Since posting lists are sorted in ascending order,
         the frontier represents the "leftmost" cursors when scanning from left to right.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        smallest: int = None
+        pointers = []
+
+        # check for smallest in cursor.current
+        for i in subset:
+            cursor = cursors[i]
+            if smallest is None:
+                smallest = cursor.current.document_id
+            elif cursor.current.document_id < smallest:
+                smallest = cursor.current.document_id
+
+        # append cursor to pointers
+        for i in subset:
+            cursor = cursors[i]
+            if cursor.current.document_id == smallest:
+                pointers.append(i)
+
+        return (smallest, pointers)
+        
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def evaluate(self, query: str, ranker: Ranker, options: Options | None = None) -> Iterator[Result]:
         """
@@ -95,4 +130,31 @@ class SimpleSearchEngine:
         The matching documents, if any, are ranked by the supplied ranker, and only the "best" matches are yielded
         back to the client.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        sieve = Sieve(options.hit_count)
+
+        term_tuple = set(Counter(self._inverted_index.get_terms(query)).items())
+        cursors = []
+        for term, mult in term_tuple:
+            posting_list = self._inverted_index[term]
+            current = next(iter(posting_list), None)
+            cursors.append(self.Cursor(term=term, multiplicity=mult, postings=posting_list, current=current))
+
+        while len(self._alive(cursors)) > 0:
+            (smallest_id, pointers) = self._frontier(cursors, self._alive(cursors))
+
+            ranker.reset(smallest_id)
+            m = len(term_tuple)
+            n = len(pointers)
+            threshold = max(1, min(m, int(options.match_threshold * m)))
+
+            if n >= threshold:
+                for i in pointers:
+                    ranker.update(cursors[i].term, cursors[i].multiplicity, cursors[i].current)
+                sieve.sift(score=ranker.evaluate(), item=smallest_id)
+            self._advance(cursors, pointers)
+
+        for score, id in sieve.winners():
+            yield self.Result(score, self._corpus.get_document(id))
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")

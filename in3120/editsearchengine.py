@@ -60,7 +60,60 @@ class EditSearchEngine:
         The matching strings, if any, are scored and only the highest-scoring matches are yielded
         back to the client.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        # check if we get valid scoring function
+        assert options.scoring in ["normalized", "negated", "lopresti"]
+        
+        # calculate right score from scoring
+        def calculate_score(scoring: str, distance: int, candidate: str):
+                if scoring == "normalized":
+                    return 1.0 - (distance / max(len(candidate), 1))
+                if scoring == "negated":
+                    return distance * -1
+                if scoring == "lopresti":
+                    length = 0
+                    for i in range(min(len(query), len(candidate))):
+                        if query[i] == candidate[i]:
+                            length += 1
+                    return (2 * length) / (len(query) + len(candidate))
+                else:
+                    return 1.0 - (distance / max(len(candidate), 1))
+        
+        candidates = Sieve(max(1, options.hit_count))
+        def callback(distance: int, candidate: str, meta: Any) -> bool:
+            if distance <= options.upper_bound and len(candidates) < options.candidate_count:
+                score = calculate_score(options.scoring, distance, candidate)
+                candidates.sift(
+                    score = score, 
+                    item = (candidates.sifted(), EditSearchEngine.Result(
+                        match = candidate,
+                        meta = meta,
+                        score = score,
+                        distance = distance,
+                    ))
+                )
+            return len(candidates) < options.hit_count
+        
+        # initialize dfs from query terms
+        terms = self._analyzer.terms(query)
+        for term, _ in terms:
+            first_n = options.first_n if options.first_n > 0 else 0
+            term_prefix = term[:first_n]
+            
+            if first_n > 0:
+                node = self._trie.consume(term_prefix)
+            else:
+                node = self._trie
+
+            if node is None:
+                continue
+            
+            edit_table = EditTable(term, term_prefix)
+            self._dfs(node, first_n, edit_table, options.upper_bound, callback)
+
+        return map(lambda item: item[1][1], candidates.winners())
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def _dfs(self, node: Trie, level: int, table: EditTable, upper_bound: int, callback: Callable[[int, str, Any], bool]) -> bool:
         """
@@ -76,4 +129,19 @@ class EditSearchEngine:
         reasonable lengths, but could merit a second look if we look to apply this to other
         use cases.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        if node.is_final():
+            distance = table.distance(level)
+            if distance <= upper_bound:
+                if not callback(distance, table.prefix(level), node.get_meta()):
+                    return False
+
+        for child_value in node.transitions():
+            min_value = table.update2(level+1, child_value)
+            if min_value <= upper_bound: 
+                if not self._dfs(node[child_value], level+1, table, upper_bound, callback):
+                    return False
+        
+        return True
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
