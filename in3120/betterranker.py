@@ -41,10 +41,34 @@ class BetterRanker(Ranker):
         self._options = options or self.Options()
 
     def reset(self, document_id: int) -> None:
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+        self._document_id = document_id
+        self._score = self._corpus[self._document_id].get_field(self._options.static_field, self._options.static_default) * self._options.static_weight
+        
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def update(self, term: str, multiplicity: int, posting: Posting) -> None:
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+        assert self._document_id == posting.document_id
+
+        N = len(self._corpus)
+        dft = len(list(self._inverted_index[term])) if len(list(self._inverted_index[term])) > 0 else 0
+        IDF = math.log(N / dft)
+
+        static_score = self._corpus[self._document_id].get_field(self._options.static_field, self._options.static_default)
+        dynamic_score = multiplicity * posting.term_frequency * IDF
+        self._score = self._options.static_weight * static_score + self._options.dynamic_weight * dynamic_score
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def evaluate(self) -> float:
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+        return self._score
+    
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+    """
+    def update(self, term: str, multiplicity: int, posting: Posting) -> None:
+            assert self._document_id == posting.document_id
+            self._score += multiplicity * posting.term_frequency
+
+    def evaluate(self) -> float:
+        return self._score
+    """

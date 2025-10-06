@@ -67,21 +67,37 @@ class SparseDocumentVector:
         """
         Returns the length (L^2 norm, also called the Euclidian norm) of the vector.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        sqrt(sum(x**2 for x in self._values.values()))
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def normalize(self) -> None:
         """
         Divides all weights by the length of the vector, thus rescaling it to
         have unit length.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        for v in list(self._values):
+            self[v] = self._values[v] / self.get_length()
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def top(self, count: int) -> Iterable[Tuple[str, float]]:
         """
         Returns the top weighted terms, i.e., the "most important" terms and their weights.
         The top terms are returned sorted (in descending order) according to their weights.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        sorted_items = sorted(self._values.items(), key=lambda item: item[1], reverse=True)
+        print(sorted_items[:count])
+
+        for i in range(count):
+            if i < len(sorted_items):
+                yield (sorted_items[i])
+
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def truncate(self, count: int) -> None:
         """
@@ -94,7 +110,11 @@ class SparseDocumentVector:
         """
         Multiplies every vector component by the given factor.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        for v in list(self._values):
+            self._values[v] = self._values[v] * factor
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def dot(self, other: SparseDocumentVector) -> float:
         """
@@ -108,7 +128,10 @@ class SparseDocumentVector:
         Returns the cosine of the angle between this vector and the other vector.
         See also https://en.wikipedia.org/wiki/Cosine_similarity.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+        
+        return sqrt(sum(x**2 for x in self._values))  # result: sqrt(3) ≈ 1.732
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     @staticmethod
     def centroid(vectors: Iterator[SparseDocumentVector]) -> SparseDocumentVector:
