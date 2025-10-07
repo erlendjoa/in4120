@@ -68,8 +68,11 @@ class SparseDocumentVector:
         Returns the length (L^2 norm, also called the Euclidian norm) of the vector.
         """
 
-        sqrt(sum(x**2 for x in self._values.values()))
-
+        product : float = 0.0
+        for x in self._values.values():
+            product += x**2
+        return sqrt(product)
+    
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def normalize(self) -> None:
@@ -77,11 +80,12 @@ class SparseDocumentVector:
         Divides all weights by the length of the vector, thus rescaling it to
         have unit length.
         """
-
+        length = self.get_length()
         for v in list(self._values):
-            self[v] = self._values[v] / self.get_length()
+            self[v] = self._values[v] / length
 
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
 
     def top(self, count: int) -> Iterable[Tuple[str, float]]:
         """
@@ -89,22 +93,22 @@ class SparseDocumentVector:
         The top terms are returned sorted (in descending order) according to their weights.
         """
 
-        sorted_items = sorted(self._values.items(), key=lambda item: item[1], reverse=True)
-        print(sorted_items[:count])
-
-        for i in range(count):
-            if i < len(sorted_items):
-                yield (sorted_items[i])
-
-
+        if count < 0:
+            raise AssertionError()
+        s = sorted(self._values.items(), key=lambda item: item[1], reverse=True)
+        return s[:count]
+    
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
 
     def truncate(self, count: int) -> None:
         """
         Truncates the vector so that it contains no more than the given number of terms,
         by removing the lowest-weighted terms.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+        self._values = {term: weight for term, weight in self.top(count)}
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def scale(self, factor: float) -> None:
         """
@@ -112,8 +116,8 @@ class SparseDocumentVector:
         """
 
         for v in list(self._values):
-            self._values[v] = self._values[v] * factor
-
+            self[v] = self._values[v] * factor      
+ 
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def dot(self, other: SparseDocumentVector) -> float:
@@ -121,7 +125,10 @@ class SparseDocumentVector:
         Returns the dot product (inner product, scalar product) between this vector
         and the other vector.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        return sum(self._values[term] * other._values.get(term, 0.0) for term in self._values)
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def cosine(self, other: SparseDocumentVector) -> float:
         """
@@ -129,7 +136,9 @@ class SparseDocumentVector:
         See also https://en.wikipedia.org/wiki/Cosine_similarity.
         """
         
-        return sqrt(sum(x**2 for x in self._values))  # result: sqrt(3) ≈ 1.732
+        if self.get_length() == 0 or other.get_length() == 0:
+            return 0.0
+        return self.dot(other) / (self.get_length() * other.get_length())
 
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
@@ -138,4 +147,13 @@ class SparseDocumentVector:
         """
         Computes the centroid of all the vectors, i.e., the average vector.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        centroid = SparseDocumentVector({})
+        for vector in vectors:
+            for term, value in vector._values.items():
+                centroid[term] = centroid._values.get(term, 0.0) + value
+        for term, value in centroid._values.items():
+            centroid[term] = value/len(vectors)
+        return centroid
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")

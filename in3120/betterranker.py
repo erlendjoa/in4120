@@ -41,8 +41,13 @@ class BetterRanker(Ranker):
         self._options = options or self.Options()
 
     def reset(self, document_id: int) -> None:
+        # set new self._document_id
         self._document_id = document_id
-        self._score = self._corpus[self._document_id].get_field(self._options.static_field, self._options.static_default) * self._options.static_weight
+
+        opt = self._options
+        document = self._corpus[self._document_id]
+        #update the score from document with the fields in self_optiopns:
+        self._score = document.get_field(opt.static_field, opt.static_default) * opt.static_weight
         
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
@@ -52,10 +57,14 @@ class BetterRanker(Ranker):
         N = len(self._corpus)
         dft = len(list(self._inverted_index[term])) if len(list(self._inverted_index[term])) > 0 else 0
         IDF = math.log(N / dft)
+        
+        opt = self._options
+        document = self._corpus[self._document_id]
 
-        static_score = self._corpus[self._document_id].get_field(self._options.static_field, self._options.static_default)
-        dynamic_score = multiplicity * posting.term_frequency * IDF
-        self._score = self._options.static_weight * static_score + self._options.dynamic_weight * dynamic_score
+        static_score = document.get_field(opt.static_field, opt.static_default)
+        dynamic_score = IDF * multiplicity * posting.term_frequency
+
+        self._score = (opt.static_weight * static_score) + (opt.dynamic_weight * dynamic_score)
 
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
@@ -63,12 +72,3 @@ class BetterRanker(Ranker):
         return self._score
     
         #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
-
-    """
-    def update(self, term: str, multiplicity: int, posting: Posting) -> None:
-            assert self._document_id == posting.document_id
-            self._score += multiplicity * posting.term_frequency
-
-    def evaluate(self) -> float:
-        return self._score
-    """
