@@ -51,26 +51,60 @@ class NaiveBayesClassifier:
         Estimates all prior probabilities (or, rather, log-probabilities) needed for
         the naive Bayes classifier.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        td = sum(len(training_set[c]) for c in training_set)
+        for c in training_set:
+            self._priors[c] = math.log(len(training_set[c])/td)
+        
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def _compute_vocabulary(self, training_set, fields) -> None:
         """
         Builds up the overall vocabulary as seen in the training set.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+        for _, corpus in training_set.items():
+            for document in corpus:
+                for field in fields:
+                    text = document.get_field(field, "")
+                    if text:
+                        for term in self._get_terms(text):
+                            self._vocabulary.add_if_absent(term)
+
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def _compute_posteriors(self, training_set, fields) -> None:
         """
         Estimates all conditional probabilities (or, rather, log-probabilities) needed for
         the naive Bayes classifier.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        term_dict = {}
+
+        for category, corpus in training_set.items():
+            term_counter = Counter()
+            for document in corpus:
+                for field in fields:
+                    text = document.get_field(field, "")
+                    if text:
+                        terms = list(self._get_terms(text))
+                        term_counter.update(terms)
+            term_dict[category] = term_counter
+            self._denominators[category] = sum(c for c in term_counter.values()) + len(self._vocabulary)
+        
+        for category in training_set:
+            self._posteriors[category] = {}
+            for term, term_frequency in term_dict[category].items():
+                self._posteriors[category][term] = self._smooth(term_frequency, category)
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
 
     def _smooth(self, frequency: int, category: str) -> float:
         """
         Computes a smoothed log-probability, using Lapace add-one smoothing. Assumes that
         we've already computed the correct fraction denominator to use for the given category.
         """
+
         return math.log((frequency + 1) / self._denominators[category])
 
     def _get_terms(self, buffer) -> Iterator[str]:
@@ -104,4 +138,16 @@ class NaiveBayesClassifier:
         are emitted back to the client via the supplied callback sorted according to the scores. The reported scores
         are log-probabilities, to minimize numerical underflow issues. Logarithms are base e.
         """
-        raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
+
+        results = []
+
+        for category in self._priors:
+            s = self._priors[category]
+            for term in self._get_terms(buffer):
+                s += self.get_posterior(category, term)
+            results.append((s, category))
+        for score, category in sorted(results, reverse=True):
+            yield self.Result(category, score)
+
+
+        #raise NotImplementedError("You need to implement this as part of the obligatory assignment.")
