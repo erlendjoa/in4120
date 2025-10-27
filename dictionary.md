@@ -20,25 +20,28 @@ TOPIC: Strings Galore
 - Merging: Intersection finds the commond documents for all terms in the query.
 - Skip Pointers: An optimization technique applied to postingslist to speed up merging
 
-- Edit Distances: Given two s trings, the minimum number of operations to convert one to the other (insert, delete, replace, transpose).
-- Weight in distance: A weight assigned to each operation for editing distance to reflect real world errors.
-
 - N-gram overlap: A method for finding a set of terms that are likely to have a small edit distance from a misspelled query term. (Trigram)
 - Soundex: algorithm for indexing terms that sound the same.
 
-Suffix Arrays
-Permuterm Indexes
-Wildcards
-Burrows-Wheeler Transform
-Edit Tables
-Tries
-Aho-Corasick Algorithm
+- Suffix Arrays: a sorted array of all suffixes of a given string. allows us to search for a given substring.
+
+- Permuterm Indexes: variouis rotations of each term all link to an original vocabulary term in the dictionary.
+- Wildcards: special characters used to represent unknown characters in search queries.
+
+- Burrows-Wheeler Transform (BWT): an algorithm that transform and compresses a given string to group similar chars togheter. ("banana" -> "annbaa")
+
+- Edit Tables: a data structure that stores the amount of instructions of every prefix of two string to make string a into string b (edit distance).
+- Edit Distances: Given two s trings, the minimum number of operations to convert one to the other (insert, delete, replace, transpose).
+- Weight in distance: A weight assigned to each operation for editing distance to reflect real world errors.
+
+- Tries: a type of graph that uses the prefix of previously entered terms to store new ones.
+- Aho-Corasick Algorithm: an algorithm that finds all terms within a given buffer using links between internal nodes.
 
 TOPIC: Classification
 
-Support Vector Machines
-Linear SVM
-Kernels and Non-Linear SVM
+- Support Vector Machines: a machine learning algorithm used in classification and regression tasks. Finds the best hyperplane that seperates the data into classes.
+- Linear SVM: 
+- Kernels and Non-Linear SVM
 Standing Query
 Classification
 Text Classification
