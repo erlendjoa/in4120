@@ -40,20 +40,31 @@ TOPIC: Strings Galore
 TOPIC: Classification
 
 - Support Vector Machines: a machine learning algorithm used in classification and regression tasks. Finds the best hyperplane that seperates the data into classes.
-- Linear SVM: 
-- Kernels and Non-Linear SVM
-Standing Query
-Classification
-Text Classification
-Filtering
+- Margin, Embedding Vectors, Supporting Vectors, Features, Hyperplane, Desicion Boundries
+
+- Linear SVM: uses a straight decision boundry (line/hyperplane)
+- Kernels: functions that compute similarity between data points and lets SVM's separate data with curves (non-linear).
+- Non-Linear SVM: uses kernels to create curved decision boundries. Used with data classes that cant be separated with a straight line.
+
+- Ad-hoc Query: Traditional query for search engines.
+- Standing Query: continous query that are stored and automatically executed against new incoming documents.
+
+- Classification: assigning data to predefined categories based on their features. Supervised learning from labeled training data, then predict the category for new items.
+- Text Classification: classification applied specifically to text documents, used for spam detection, topic categorization, language detection, etc.
+
+- Filtering: classification based on binary decisions (true/false)
 Vertical Search Engine
-Statistical Test Classification
-Labeling
-Feature Selection
-Supervised Learning Algorithm
-Naive Bayes
-Vector Space Classifiers (Rocchio, k-nn)
-Evaluation Metrics (Precision and Recall)
+- Labeling: assigning categories' names/tags to training data so that the supervised learning algorithms can learn from examples.
+- Feature Selection: the process of choosing the most relevant and informative features from the data while removing irrelevant ones.
+
+- Supervised Learning Algorithm: machine learning algorith that learns from labeled training data (input-output pairs) to preict outputs for new data.
+
+- Statistical Test Classification: uses statistical and probabilistic models to categorize text based on patterns learned from training data (Naive bayes, SVM, Logistic regression).
+- Naive Bayes: assumes features are independent of each other and calculates the probability of each class given the features and assignes the highest probability class to the dataset.
+
+- Vector Space Classifiers: classification methods that represent documents as vectors in a multi dimentional space and classifies based on distance/similarity between vectors.
+- Rocchio Classifier: creates a centroid for each class by averaging all training vectors in that class, then classifies new documents by finding the nearest centroid.
+- k-Nearest Neighbors (k-NN): finds the k closest training examples to the new document, then classifies based on majority vote of those k neighbors.
 
 TOPIC: Approximate Nearest Neighbours
 
@@ -94,3 +105,10 @@ Loss Functions
 Gradient Descent
 Parameters/Hyperparameters
 Regularization
+
+- Bloom Filters: a probabilistic data structure for checking set membership (var "in"/"not in" set), very space efficient.
+
+- Neural Networks: Interconnected neurons organized in layers (input -> hidden -> output layer)each connection between neurons (nodes) has an independent weight, the strength of the connection.
+
+- Embeddig Vectors: the vectors for numerical representations of data points in a multi-dimentional space where similar items are positioned close togheter. Converting data to vectors via vectorization and Mapping. ex: Embedding vectors = [[1,5,3,6,3]] where [1,5,3,6,3] is the embedding vector.
+
