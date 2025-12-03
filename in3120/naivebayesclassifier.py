@@ -141,7 +141,7 @@ class NaiveBayesClassifier:
 
         results = []
 
-        for category in self._priors:
+        for category in self._priors:   
             s = self._priors[category]
             for term in self._get_terms(buffer):
                 s += self.get_posterior(category, term)

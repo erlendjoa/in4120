@@ -87,3 +87,9 @@ Proximity weighting
 Evidence Accumulation
 
 ## Chapter 8: Evaluation in information retrieval
+
+## Chapter 13: Text Classification and Naive Bayes
+
+Standing Queries
+Jaccard Similarity/Coefficent and Distance
+Maximum A Posteriori Class (MAP-class)
